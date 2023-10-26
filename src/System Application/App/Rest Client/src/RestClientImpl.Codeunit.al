@@ -4,6 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace System.RestClient;
 
+using System.Environment;
+using System.Environment.Configuration;
+
 codeunit 2351 "Rest Client Impl."
 {
     Access = Internal;
@@ -28,7 +31,7 @@ codeunit 2351 "Rest Client Impl."
         Initialize(DefaultHttpClientHandler, HttpAuthenticationAnonymous);
     end;
 
-    #pragma warning disable AA0244
+#pragma warning disable AA0244
     procedure Initialize(HttpClientHandler: Interface "Http Client Handler")
     begin
         Initialize(HttpClientHandler, HttpAuthenticationAnonymous);
@@ -38,17 +41,40 @@ codeunit 2351 "Rest Client Impl."
     begin
         Initialize(DefaultHttpClientHandler, HttpAuthentication);
     end;
-    #pragma warning restore AA0244
+#pragma warning restore AA0244
 
     procedure Initialize(HttpClientHandlerInstance: Interface "Http Client Handler"; HttpAuthenticationInstance: Interface "Http Authentication")
     begin
         ClearAll();
 
         HttpClient.Clear();
+        RaiseTestabilityEvent();
         HttpClientHandler := HttpClientHandlerInstance;
         HttpAuthentication := HttpAuthenticationInstance;
         IsInitialized := true;
         SetDefaultUserAgentHeader();
+    end;
+
+    local procedure RaiseTestabilityEvent()
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
+        ServerSetting: Codeunit "Server Setting";
+    begin
+        if not ServerSetting.GetTestAutomationEnabled() then
+            exit;
+
+        if not EnvironmentInformation.IsSaas() then
+            exit;
+
+        if not EnvironmentInformation.IsSandbox() then
+            exit;
+
+        OnGetDefault();
+    end;
+
+    [InternalEvent(false, false)]
+    local procedure OnGetDefault()
+    begin
     end;
 
     procedure SetDefaultRequestHeader(Name: Text; Value: Text)
