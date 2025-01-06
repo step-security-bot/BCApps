@@ -15,9 +15,14 @@ jobs:
     outputs:
       updateBranches: ${{ steps.getOfficialBranches.outputs.branchesJson }}
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        with:
+          egress-policy: audit
+
       - name: Get Official Branches
         id: getOfficialBranches
-        uses: microsoft/BCApps/.github/actions/GetGitBranches@main
+        uses: microsoft/BCApps/.github/actions/GetGitBranches@81350be902c14fb774dbe63fb1c57e7e0bc44d26 # main
         with:
           include: "['main', 'releases/*']"
 
@@ -32,10 +37,15 @@ jobs:
         branch: ${{ fromJson(needs.GetBranches.outputs.updateBranches) }}
       fail-fast: false
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        with:
+          egress-policy: audit
+
       - name: Update AL-Go System Files
         env:
           GH_TOKEN: ${{ secrets.GHTOKENWORKFLOW }}
-        uses: microsoft/BCApps/.github/actions/RunAutomation@main
+        uses: microsoft/BCApps/.github/actions/RunAutomation@81350be902c14fb774dbe63fb1c57e7e0bc44d26 # main
         with:
           automations: UpdateALGo
           targetBranch: ${{ matrix.branch }}
