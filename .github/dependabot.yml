@@ -16,3 +16,8 @@ updates:
     - dependency-name: "microsoft/AL-Go/*"
   labels:
     - "Automation"
+
+- package-ecosystem: github-actions
+  directory: /
+  schedule:
+    interval: daily
